@@ -1,0 +1,40 @@
+name: Sourcing Agent
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  source-candidates:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run sourcing agent
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python sourcing_agent.py
+      
+      - name: Run outreach agent
+        run: python outreach_agent.py
+      
+      - name: Commit and push candidates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add candidates.json outreach_queue.json
+          git commit -m "[Bot] Update candidates and outreach queue - $(date)" || true
+          git push
