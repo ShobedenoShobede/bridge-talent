@@ -35,6 +35,6 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add candidates.json outreach_queue.json
+          git add -f candidates.json outreach_queue.json
           git commit -m "[Bot] Update candidates and outreach queue - $(date)" || true
           git push
